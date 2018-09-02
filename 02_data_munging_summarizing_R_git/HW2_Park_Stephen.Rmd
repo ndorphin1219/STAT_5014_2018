@@ -1,0 +1,205 @@
+---
+title: "Statistics 5014: Homework 2"
+subtitle: "Due Monday September 11, 10 am"
+author: "Stephen Park"
+date: '`r Sys.Date()`'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(knitr.kable.NA = '')
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(swirl)
+library(knitr)
+library(kableExtra)
+```
+  
+## Problem 4: How would version control help in the classroom?
+
+When writing long script files with complex codes, e.g., LaTeX code lines that need to be knitted to see their output, version control would make it efficient to backtrack to any minor errors that may have been made and correct them. The presence of a version control system would make myself more bold in attempting new coding techniques and syntaxes as well. It will also be more easy to collaborate on projects with fellow classmates without having to be physically in the same work area.
+
+## Problem 5: Create tidy datasets from Wu and Hamada (2009)
+
+a. Sensory data from five operators
+
+There are a total of 150 values that each correspond to an Item (1:10) and Operator (1:5). The first issue is that the variables are stored in both rows (Item) and columns (Operator). The second issue is that the column headers are set as the various Operator treatments, not the variable names (i.e., Operator, Item, and Value). In the tidy dataset, each observation would include an Item and Operator, and a value, giving it a dimension of $(150, 3)$. A third issue is that for i $\in$ {1, 2, $\dots$, 9, 10}, every $(3i-2)$th row has a 6th integer entry on the leftmost side - which should correspond to the Item variable, while the $(3i-1)$th and $3i$th rows only have 5 data entries each. Therefore, the data is manipulated as follows to obtain the targeted dataset with 150 observations of 3 variables.
+
+&nbsp;
+
+```{r, tidy.opts = list(width.cutoff=80), tidy=TRUE}
+urla <- 'https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/Sensory.dat'
+     # Store URL for sensory data
+data_mess <- read.table(urla, skip = 1, header = T, fill = T, sep = " ")
+     # Import data; use 2nd row as header
+data_tidy <- data_mess   
+     # Preserve messy data and manipulate using a new variable
+for (i in 1:10){
+  data_tidy[3*i-1, 2:6] <- data_mess[3*i-1,1:5]
+     # For each (3*i-1)th row, "push" data to the right to align with rest of the data
+  data_tidy[3*i, 2:6] <- data_mess[3*i,1:5]   # Do the same for each (3*i)th row
+}   
+colnames(data_tidy) <- c("Item", "1", "2", "3", "4", "5")      # Assign Operator numbers
+data_tidy <- data_tidy %>% gather(key = Item, value = Value)   # Gather and drop columns
+data_tidy <- cbind(data_tidy[ , 1], as.data.frame(rep(1:10, each = 3)), data_tidy[ , 2])   # Insert Item values into the center column
+colnames(data_tidy) <- c("Operator", "Item", "Value")   # Rename variable names
+data_tidy$Item <- as.factor(data_tidy$Item)    # Change Item variable from numeric to factor
+```
+\newpage
+```{r}
+head(data_tidy, 5)      # Preview sensory data from five operators
+summary(data_tidy)   # Summarize sensory data
+str(data_tidy)       # Display sensory data structure
+```
+
+&nbsp;
+
+b. Gold Medal performance for Olympic Men's Long Jump, year is coded as 1900=0.  
+
+There are a total of 44 values - 22 Year values (-4:92) and 22 long jump records. The first issue is that both the Year and Record variables are listed in multiple columns. The second issue is that the space (" ") separator creates 12 column names for 8 columns of data, although it appears that the column names were intended to be a repeat of "Year" and "Long Jump." Therefore, the data is manipulated as follows to obtain the targeted dataset with 22 observations of 2 variables.
+
+&nbsp;
+
+```{r}
+urlb <- 'https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/LongJumpData.dat'
+     # Store URL for long jump data
+datb_mess <- read.table(urlb, fill = T, header = F, sep = " ", skip = 1)
+     # Import data; don't use header because space separator is used
+datb_tidy <- datb_mess
+     # Preserve messy data and manipulate using a new variable
+names(datb_tidy) <- rep(c("Year", "Record"), 4)     # Rename columns
+datb_tidy <- as.data.frame(lapply(split(as.list(datb_tidy), names(datb_tidy)), unlist))
+     # Split according to names, rejoin into a list of 2, then re-combine into a dataset
+datb_tidy <- datb_tidy[ 1:22,2:1]     # Rearrange columns and remove NA observations
+datb_tidy$Year <- as.ordered(datb_tidy$Year)
+     # Change Year variable from numeric to ordered factor
+head(datb_tidy, 4)      # Preview long jump data
+summary(datb_tidy)   # Summarize long jump data
+str(datb_tidy)       # Display long jump data structure
+```
+
+&nbsp;
+
+c. Brain weight (g) and body weight (kg) for 62 species.
+
+There are a total of 124 values - 62 pairs of brain weights body weights, each corresponding to a mammalian species. The first issue is that both the Brain_g and Body_kg variables are listed in multiple columns. The second issue is that the space (" ") separator creates 12 column names for 6 columns of data, although it appears that the column names were intended to be a repeat of "Brain Wt" and "Body Wt." Therefore, the data is manipulated as follows to obtain the targeted dataset with 62 observations of 2 variables.
+
+&nbsp;
+
+```{r}
+urlc <- 'http://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/BrainandBodyWeight.dat'
+     # Store URL for brain and body weight data
+datc_mess <- read.table(urlc, fill = T, header = F, sep = " ", skip = 1)
+     # Import data; don't use header because space separator is used
+datc_tidy <- datc_mess
+     # Preserve messy data and manipulate using a new variable
+names(datc_tidy) <- rep(c("Brain_g", "Body_kg"), 3)     # Rename columns
+
+datc_tidy <- as.data.frame(lapply(split(as.list(datc_tidy), names(datc_tidy)), unlist))
+     # Split according to names, rejoin into a list of 2, then re-combine into a dataset
+datc_tidy <- datc_tidy[ 1:62,2:1]     # Rearrange columns and remove NA observations
+head(datc_tidy, 5)       # Preview brain weight data
+summary(datc_tidy)    # Summarize brain weight data
+str(datc_tidy)        # Display brain weight data structure
+```
+
+&nbsp;
+
+d. Triplicate measurements of tomato yield for two varieties of tomatos at three planting densities.  
+
+There are a total of 18 tomato yield values, each corresponding to a tomato variety (Ife #1 and Pusa Early Dwarf), and planting density (10,000, 20,000, and 30,000 plants/ha).
+
+&nbsp;
+
+```{r, tidy.opts = list(width.cutoff=80), tidy=TRUE}
+urld <- 'http://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/tomato.dat'
+     # Store URL for brain and body weight data
+datd_mess <- fread(urld, header = F, sep = " ")
+     # Import data; don't use header
+datd_tidy <- datd_mess
+     # Preserve messy data and manipulate using a new variable
+datd_tidy <- datd_tidy %>% separate(V2, c(paste("10000",1:3,sep="_")), sep = ",", remove = T, extra = 'drop') %>% separate(V3, c(paste("20000",1:3,sep="_")), sep = ",", remove = T, extra = 'drop') %>% separate(V4, c(paste("30000",1:3,sep="_")), sep = ",", remove = T, extra = 'drop')
+     # Separate data in each column at commas
+datd_tidy <- datd_tidy %>% select(-V1)
+     # Drop tomato names
+datd_tidy <- datd_tidy %>% gather(key = Density, value = Yield)   # Gather and drop columns
+datd_tidy <- as.data.frame(cbind(as.character(c(datd_mess[1,1],datd_mess[2,1])), as.numeric(rep(c(10000, 20000, 30000), 6)), as.numeric(datd_tidy[ ,2])))
+     # Re-add Variety and Density variable columns
+colnames(datd_tidy) <- c("Variety", "Density", "Yield")    # Rename columns
+datd_tidy$Yield <- as.numeric(datd_tidy$Yield)
+     # Change Yield variable from ordered to numeric factor
+head(datd_tidy, 9)      # Preview tomato data
+summary(datd_tidy)   # Summarize tomato data
+str(datd_tidy)       # Display tomato data structure
+```
+
+## Problem 6
+
+```{r, include = F, tidy.opts = list(width.cutoff=75), tidy=TRUE}
+.datapath <- file.path(path.package('swirl'), 'Courses', 'R_Programming_E',
+                       'Looking_at_Data', 'plant-data.txt')        # Path to data
+plants <- read.csv(.datapath, strip.white=TRUE, na.strings="")     # Read in data
+.cols2rm <- c('Accepted.Symbol', 'Synonym.Symbol')
+plants <- plants[, !(names(plants) %in% .cols2rm)]     # Remove annoying columns
+names(plants) <- c('Scientific_Name', 'Duration', 'Active_Growth_Period', 'Foliage_Color', 'pH_Min', 'pH_Max', 'Precip_Min', 'Precip_Max', 'Shade_Tolerance', 'Temp_Min_F')
+     # Make names pretty
+```
+
+```{r}
+Foliage_Color_ <- plants$Foliage_Color[!is.na(plants$Foliage_Color) &
+      !is.na(plants$pH_Min) & !is.na(plants$pH_Max)]
+phmin <- plants$pH_Min[!is.na(plants$Foliage_Color) & !is.na(plants$pH_Min) &
+      !is.na(plants$pH_Max)]
+phmax <- plants$pH_Max[!is.na(plants$Foliage_Color) & !is.na(plants$pH_Min) &
+      !is.na(plants$pH_Max)]     # Exclude rows with missing fcolr, phmin, or phmax values
+plants_tidy <- cbind.data.frame(phmin, phmax, Foliage_Color_)     # Combine 3 columns
+str(plants_tidy)       # Display tidy plant data structure
+model <- lm(formula = phmin + phmax ~ Foliage_Color_, data = plants_tidy)     # Linear model
+kable(summary(model)$coef, digits = 3, format = "pandoc",
+      caption = "Linear Model Coefficients for Min pH + Max pH ~ Foliage Color")
+kable(anova(model), digits = 3, format = "pandoc",
+      caption = "ANOVA table for Min pH + Max pH ~ Foliage Color")
+```
+
+&nbsp;
+
+\begin{center}
+Virginia Tech Honor Pledge: \newline
+“I have neither given nor received unauthorized assistance on this assignment.”
+\end{center}
+
+## Problem 8
+
+Finish this homework by pushing your changes to your repo and submitting me a pull request.  In general, your workflow for this should be:  
+
+1. In R: pull (Git tab, down arrow) -- to make sure you have the most recent repo  
+2. In R: do some work  
+3. In R: check files you want to commit  
+4. In R: commit, make message INFORMATIVE and USEFUL  
+5. In R: push -- this pushes your local changes to the repo  
+6. In Github: submit a pull request -- this tells me you are wanting me to pull in your changes to my master repo
+
+If you have difficulty with steps 1-5, git is not correctly or completely setup.  The above will pull from your repo, so does not include anything to get from MY repo, ie nothing new will show up.
+
+To get stuff from my repo which you then can push to your repo, modify the above to be:
+
+1. In R: do some work  
+2. At command prompt: git pull upstream master -- to make sure you have the most recent repo 
+3. In R: check files you want to commit (this MAY include files I added/changed)  
+4. In R: commit, make message INFORMATIVE and USEFUL  
+5. In R: push -- this pushes OUR local changes to YOUR repo  
+6. In Github: submit a pull request -- this tells me you are wanting me to pull in your changes to my master repo
+
+**Only submit the .Rmd and .pdf solution files.  Names should be formatted HW2_lastname_firstname.Rmd and HW2_lastname_firstname.pdf**
+
+## Optional preperation for next class:  
+
+Next week we will talk about R logic and good programming practices.  If you have time and are interested, please read:  
+
+Google's R Style Guide: <https://google.github.io/styleguide/Rguide.xml>  
+Hadley Wickam's R Style Guide: <http://r-pkgs.had.co.nz/style.html>
+
+
+
