@@ -167,6 +167,12 @@ kable(anova(model), digits = 3, format = "pandoc",
 
 \begin{center}
 Virginia Tech Honor Pledge: \newline
+<<<<<<< HEAD
+<<<<<<< HEAD
+“I have neither given nor received unauthorized assistance on this assignment.”
+=======
+=======
+>>>>>>> 6bbee51bc675b67c4c280552e2e32b51cae1708d
 “I have neither given nor received unauthorized assistance on this assignment.”
 \end{center}
 
@@ -203,3 +209,7 @@ Hadley Wickam's R Style Guide: <http://r-pkgs.had.co.nz/style.html>
 
 
 
+<<<<<<< HEAD
+>>>>>>> 6bbee51bc675b67c4c280552e2e32b51cae1708d
+=======
+>>>>>>> 6bbee51bc675b67c4c280552e2e32b51cae1708d
