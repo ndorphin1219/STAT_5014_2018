@@ -7,107 +7,147 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(dplyr)
+library(knitr)
+library(plotrix)
+library(tidyr)
 ```
 
-## Problem 1
-
-Work through the "R Programming E" lesson parts 8 and 9.
-
-From the R command prompt:  
-install.packages("swirl")  
-library(swirl)  
-install_course("Exploratory_Data_Analysis")  
-swirl()  
-  
 ## Problem 4
 
 Coding is akin to writing literature, i.e, using correct punctuation. It is important to be consistent and concise throughout the text, so that reviewing and debugging can be performed efficiently. I will attempt to implement the nomenclature scheme that the style guides suggests to be more consistent in naming and differentiating my variables and functions.
 
-## Problem 5
-
-Good programming practices start with this homework.  In the last homework, you imported, munged, cleaned and summarized datasets from Wu and Hamada's _Experiments: Planning, Design and Analysis_.  In this problem, please using _lintr_ to lint your last homework (if you didn't do it, perhaps the time is now ;) ).  In my case, the command looks like this (takes a few moments to run):  
+## Problem 5: lint HW2
 
 ```{r eval=F, echo=T}
     lint(filename = "./02_data_munging_summarizing_R_git/HW2_Park_Stephen.Rmd")
 ```
 
-Can you clean up your code to pass the major issues??  <--- just a challenge, not part of the problem!! 
+As a result of linting HW2, the following issues were brought up:
 
-Note that really all we have done is syntax checking and received a few stylistic suggestions.  We COULD create a custom linter to check for indenting, etc.  For now, I think it is enough to know there are a lot of opinions on what code should look like and working in teams requires you to code nicely!!  So, clean up your code!!
+- Excessively long lines ( > 80 characters),
+- inconsistent spacing around infix operators and commas,
+- use of single quotes over double-quotes, and
+- variable and function names that are not all lowercase.
 
-From the messages, what are some things you need to change in your code?
+The general message from the linting process is that the code syntax needs to be consistent and arranged in a manner so that it is easy to review. The following changes were made to the existing code:
 
+- Excessively long commands and/or comments were divided so that each line did not occupy more than 80 characters.
+- Spaces were included before and after infix operators, and after commas.
+- All single quotes were substituted with double quotes.
+- Only lowercase was used for variable and function names.
+
+\newpage
 ## Problem 6
 
-A situation you may encounter is a data set where you need to create a summary statistic for each observation type.  Sometimes, this type of redundancy is perfect for a function.  Here, we need to create a single function to:
-
-1. calculate the mean for dev1
-2. calculate the mean for dev2
-3. calculate the sd for dev1
-4. calculate the sd for dev2
-5. calculate the correlation between dev1 and dev2
-6. return the above as a single data.frame
-
-We will use this function to summarize a dataset which has multiple repeated measurements from two devices by thirteen Observers.  In the current lecture directory, you will see a file "HW3_data.rds".  Please load the file (?readRDS -- really nice format for storing data objects), loop through the Observers collecting the summary statistics via your function for each Observer separately.
-
 ```{r}
-input.data <- readRDS("HW3_data.rds")
+dev.input <- readRDS("HW3_data.rds")   # Read in dataset from RDS file
 
-output.data <- StatSummary(input.data){
-  # function - for each Observer - to compute the means and standard deviations for   # both dev1 and dev2, as well as the correlation between dev1 and dev2 and return   # a dataset of all of the values.
-  sum
-  
-  for (i in input.data[,1])
-    
-    }
+# Define function to display descriptive statistics
+DevStats <- function(input){
+  obs.count <- input %>% count(Observer)  # Frequency of each Observer
+  # Create empty output table with target variables
+  output <- data.frame(id = obs.count[, 1],
+                            mean.dev1 = numeric(nrow(obs.count)),
+                            mean.dev2 = numeric(nrow(obs.count)),
+                            sd.dev1 = numeric(nrow(obs.count)),
+                            sd.dev2 = numeric(nrow(obs.count)),
+                            corr = numeric(nrow(obs.count)))
+# Group data by Observer and calculate descriptive statistics
+  for (i in 1:nrow(obs.count)){
+    sub.data <- filter(input, Observer == i)
+    output$mean.dev1[i] <- mean(sub.data[, 2])
+    output$mean.dev2[i] <- mean(sub.data[, 3])
+    output$sd.dev1[i] <- sd(sub.data[, 2])
+    output$sd.dev2[i] <- sd(sub.data[, 3])
+    output$corr[i] <- cor(sub.data[, 2], sub.data[, 3])
+  }
+  return(output)
+}
+dev.output <- DevStats(dev.input)   # Run function with given data
 
-
-
+# Create table for output data
+kable(dev.output, digits = 3, format = "pandoc",
+      caption = "Descriptive Statistic Summary of Device Measurements",
+      col.names = c("Observer", "Dev1 Mean", "Dev2 Mean", "Dev1 SD",
+                    "Dev2 SD", "Correlation"))
+# Configure boxplot layout
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE),
+   widths=c(2,2), heights=lcm(c(4,6)))
+par(mar=c(4, 4, 1, 1))
+# Side-by-side boxplot to compare means
+boxplot(dev.output$mean.dev1, dev.output$mean.dev2, main="Means by Device",
+        ylab="Measurement", ylim = c(45, 55), names = c("Dev1", "Dev2"))
+# Detailed boxplots to view spreads
+boxplot(dev.output$mean.dev1, xlab = "Dev1", ylab = "Measurement",
+        ylim = c(54.26, 54.27))
+boxplot(dev.output$mean.dev2, xlab = "Dev2", ylab="Measurement",
+        ylim = c(47.83, 47.84))
+# Configure violin plot layout
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE),
+   widths=c(2,2), heights=lcm(c(4,6)))
+par(mar=c(4, 4, 1, 1))
+# Side-by-side violin plot to compare means
+violin_plot(data.frame(dev.output$sd.dev1, dev.output$sd.dev2), main = "Standard Deviations by Device", ylab = "Measurement", x_axis_labels = c("Dev1", "Dev2"))
+# Detailed boxplots to view spreads
+violin_plot(dev.output$mean.dev1, x_axis_labels = "Dev1", ylab = "Measurement", main = NA)
+violin_plot(dev.output$mean.dev2, x_axis_labels = "Dev2", ylab = "Measurement", main = NA)
 ```
 
+## Problem 7
 
-The output of this problem should be:
+```{r, tidy.opts = list(width.cutoff=70), tidy=TRUE}
+# Store URL for blood pressure data
+url <- "http://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/BloodPressure.dat"
+ # Import data; use 2nd row as header
+data_mess <- fread(url, skip = 1, header = T, fill = T, sep = " ")
+# Preserve messy data and manipulate using a new variable
+data_tidy <- data_mess %>% gather(key = Reader, value = Blood.Pressure) %>%
+  filter(Reader != "Day") %>% arrange(Day)
+head(data_tidy, 7)   # Preview data set
+summary(data_tidy)   # Summarize data
+str(data_tidy)       # Display blood pressure data structure
+```
 
-a. A single table of the means, sd, and correlation for each of the 13 Observers  
-b. A box plot of all the means to compare the spread of means from dev1 to dev2  
-c. A violin plot of all the sd to compare the spread of sd from dev1 to dev2  
+## Problem 8: Newton's Method
 
-I will look at the code and comment on it, so make it NICE!!
-
-## Problem 7 -- redo
-
-Same as last time, please create and annotate the process to create a tidy dataset from <http://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/BloodPressure.dat>
-
-If you didn't use the tidy functions last time, this is an opportunity to try them out now that you have thought through what the final format should be.  If you did it using functions from the tidyverse, copy paste from last time.
-
-## Problem 8
-
-Create a function to find solutions to (1) using Newton's method.  The answer should include the solutions with tolerance used to terminate the loop and a plot showing the iterations on the path to the solution.
-
-\begin{equation}
-f(x) = 3^x - sin(x) + cos(5x)
-\end{equation}
-
-## Problem 9
-
-Finish this homework by pushing your changes to your repo and submitting me a pull request.  In general, your workflow for this should be:  
-
-1. In R: git pull upstream  -- to make sure you have the most recent local repo  
-2. In R: do some work  
-3. In R: check files you want to commit  
-4. In R: commit, make message INFORMATIVE and USEFUL  
-5. In R: push -- this pushes your local changes to the repo  
-6. In Github: submit a pull request -- this tells me you are wanting me to pull in your changes to my master repo
-
-If you have difficulty with steps 1-5, git is not correctly or completely setup.
-
-**Only submit the .Rmd and .pdf solution files.  Names should be formatted HW3_lastname_firstname.Rmd and HW3_lastname_firstname.pdf**
-
-## Optional preperation for next class:  
-
-Next week we will talk about Exploratory Data Analysis and graphing.  Swirl will be a bit part of this.  Check out "Exploratory_Data_Analysis" Swirl lessons 1-10.
-
-
-
-
-
+```{r}
+# Pre-define function
+func <- function(x) {
+  3^x - sin(x) + cos(5*x)
+}
+# Define Newton's Method function with the following input:
+# f = given funtion
+# x_0 = initial x
+# tol = tolerance
+# n = max number of iterations
+newton <- function(f, x_0, tol = 1e-5, n = 1000) {
+  require(numDeriv)
+  # If x_0 is zero, end function and output x_0
+  if (f(x_0) == 0.0) {
+    return(x_0)
+  }
+  x <- x_0
+  for (i in 1:n) {
+    x[i+1] <- x[i] - f(x[i])/genD(func = f, x = x[i])$D[1]
+    if (x[i+1] - x[i] < tol) {
+      print("Convergence achieved")
+      break
+    }
+    if(i == n) {
+      print("Method did not converge")
+    }
+  }
+  print(paste0("The tolerance for convergence is ", tol))
+  plot(x[1:length(x) - 1], f(x[1:length(x) - 1]), col = "blue", ylab = "f(x)", xlab = "x", xlim = c(-max(abs(x)),max(abs(x))), ylim = c(-max(abs(f(x))),max(abs(f(x)))))
+  points(x[length(x)], f(x[length(x)]), col = "red")
+  abline(h=0)
+  abline(v=0)
+  x.data <- tibble::rowid_to_column(data.frame(x), "Iterations")
+  kable(x.data, digits = 3, format = "pandoc",
+      caption = "Iterative Estimations in Newton's Method")
+}
+# Test the method with given function
+newton(func, -10, tol = 1e-6)
+```
