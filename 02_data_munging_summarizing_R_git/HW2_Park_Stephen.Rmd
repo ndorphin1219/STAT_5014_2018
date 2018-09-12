@@ -8,7 +8,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-options(knitr.kable.NA = '')
+options(knitr.kable.NA = "")
 library(data.table)
 library(dplyr)
 library(tidyr)
@@ -30,20 +30,22 @@ There are a total of 150 values that each correspond to an Item (1:10) and Opera
 &nbsp;
 
 ```{r, tidy.opts = list(width.cutoff=80), tidy=TRUE}
-urla <- 'https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/Sensory.dat'
+urla <- "https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/Sensory.dat"
      # Store URL for sensory data
 data_mess <- read.table(urla, skip = 1, header = T, fill = T, sep = " ")
      # Import data; use 2nd row as header
-data_tidy <- data_mess   
+data_tidy <- data_mess
      # Preserve messy data and manipulate using a new variable
 for (i in 1:10){
-  data_tidy[3*i-1, 2:6] <- data_mess[3*i-1,1:5]
-     # For each (3*i-1)th row, "push" data to the right to align with rest of the data
-  data_tidy[3*i, 2:6] <- data_mess[3*i,1:5]   # Do the same for each (3*i)th row
-}   
+  data_tidy[3 * i - 1, 2:6] <- data_mess[3 * i - 1, 1:5]
+     # For each (3*i-1)th row,
+     #"push" data to the right to align with rest of the data
+     # Do the same for each (3*i)th row
+  data_tidy[3 * i, 2:6] <- data_mess[3 * i, 1:5]
+}
 colnames(data_tidy) <- c("Item", "1", "2", "3", "4", "5")      # Assign Operator numbers
 data_tidy <- data_tidy %>% gather(key = Item, value = Value)   # Gather and drop columns
-data_tidy <- cbind(data_tidy[ , 1], as.data.frame(rep(1:10, each = 3)), data_tidy[ , 2])   # Insert Item values into the center column
+data_tidy <- cbind(data_tidy[, 1], as.data.frame(rep(1:10, each = 3)), data_tidy[, 2])   # Insert Item values into the center column
 colnames(data_tidy) <- c("Operator", "Item", "Value")   # Rename variable names
 data_tidy$Item <- as.factor(data_tidy$Item)    # Change Item variable from numeric to factor
 ```
@@ -63,7 +65,7 @@ There are a total of 44 values - 22 Year values (-4:92) and 22 long jump records
 &nbsp;
 
 ```{r}
-urlb <- 'https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/LongJumpData.dat'
+urlb <- "https://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/LongJumpData.dat"
      # Store URL for long jump data
 datb_mess <- read.table(urlb, fill = T, header = F, sep = " ", skip = 1)
      # Import data; don't use header because space separator is used
@@ -72,7 +74,7 @@ datb_tidy <- datb_mess
 names(datb_tidy) <- rep(c("Year", "Record"), 4)     # Rename columns
 datb_tidy <- as.data.frame(lapply(split(as.list(datb_tidy), names(datb_tidy)), unlist))
      # Split according to names, rejoin into a list of 2, then re-combine into a dataset
-datb_tidy <- datb_tidy[ 1:22,2:1]     # Rearrange columns and remove NA observations
+datb_tidy <- datb_tidy[ 1:22, 2:1]     # Rearrange columns and remove NA observations
 datb_tidy$Year <- as.ordered(datb_tidy$Year)
      # Change Year variable from numeric to ordered factor
 head(datb_tidy, 4)      # Preview long jump data
@@ -89,7 +91,7 @@ There are a total of 124 values - 62 pairs of brain weights body weights, each c
 &nbsp;
 
 ```{r}
-urlc <- 'http://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/BrainandBodyWeight.dat'
+urlc <- "http://www2.isye.gatech.edu/~jeffwu/wuhamadabook/data/BrainandBodyWeight.dat"
      # Store URL for brain and body weight data
 datc_mess <- read.table(urlc, fill = T, header = F, sep = " ", skip = 1)
      # Import data; don't use header because space separator is used
@@ -120,12 +122,12 @@ datd_mess <- fread(urld, header = F, sep = " ")
      # Import data; don't use header
 datd_tidy <- datd_mess
      # Preserve messy data and manipulate using a new variable
-datd_tidy <- datd_tidy %>% separate(V2, c(paste("10000",1:3,sep="_")), sep = ",", remove = T, extra = 'drop') %>% separate(V3, c(paste("20000",1:3,sep="_")), sep = ",", remove = T, extra = 'drop') %>% separate(V4, c(paste("30000",1:3,sep="_")), sep = ",", remove = T, extra = 'drop')
+datd_tidy <- datd_tidy %>% separate(V2, c(paste("10000", 1:3, sep = "_")), sep = ",", remove = T, extra = "drop") %>% separate(V3, c(paste("20000", 1:3,sep="_")), sep = ",", remove = T, extra = "drop") %>% separate(V4, c(paste("30000", 1:3, sep = "_")), sep = ",", remove = T, extra = "drop")
      # Separate data in each column at commas
 datd_tidy <- datd_tidy %>% select(-V1)
      # Drop tomato names
 datd_tidy <- datd_tidy %>% gather(key = Density, value = Yield)   # Gather and drop columns
-datd_tidy <- as.data.frame(cbind(as.character(c(datd_mess[1,1],datd_mess[2,1])), as.numeric(rep(c(10000, 20000, 30000), 6)), as.numeric(datd_tidy[ ,2])))
+datd_tidy <- as.data.frame(cbind(as.character(c(datd_mess[1, 1], datd_mess[2, 1])), as.numeric(rep(c(10000, 20000, 30000), 6)), as.numeric(datd_tidy[, 2])))
      # Re-add Variety and Density variable columns
 colnames(datd_tidy) <- c("Variety", "Density", "Yield")    # Rename columns
 datd_tidy$Yield <- as.numeric(datd_tidy$Yield)
@@ -138,12 +140,13 @@ str(datd_tidy)       # Display tomato data structure
 ## Problem 6
 
 ```{r, include = F, tidy.opts = list(width.cutoff=75), tidy=TRUE}
-.datapath <- file.path(path.package('swirl'), 'Courses', 'R_Programming_E',
-                       'Looking_at_Data', 'plant-data.txt')        # Path to data
-plants <- read.csv(.datapath, strip.white=TRUE, na.strings="")     # Read in data
-.cols2rm <- c('Accepted.Symbol', 'Synonym.Symbol')
+#.datapath <- file.path(path.package('swirl'), 'Courses', 'R_Programming_E',
+#                       'Looking_at_Data', 'plant-data.txt')        # Path to data
+.datapath <- "/home/ndorphin/R/x86_64-pc-linux-gnu-library/3.4/swirl/Courses/R_Programming/Looking_at_Data/plant-data.txt"
+plants <- read.csv(.datapath, strip.white = TRUE, na.strings = "")     # Read in data
+.cols2rm <- c("Accepted.Symbol", "Synonym.Symbol")
 plants <- plants[, !(names(plants) %in% .cols2rm)]     # Remove annoying columns
-names(plants) <- c('Scientific_Name', 'Duration', 'Active_Growth_Period', 'Foliage_Color', 'pH_Min', 'pH_Max', 'Precip_Min', 'Precip_Max', 'Shade_Tolerance', 'Temp_Min_F')
+names(plants) <- c("Scientific_Name", "Duration", "Active_Growth_Period", "Foliage_Color", "pH_Min", "pH_Max", "Precip_Min", "Precip_Max", "Shade_Tolerance", "Temp_Min_F")
      # Make names pretty
 ```
 
@@ -154,18 +157,13 @@ phmin <- plants$pH_Min[!is.na(plants$Foliage_Color) & !is.na(plants$pH_Min) &
       !is.na(plants$pH_Max)]
 phmax <- plants$pH_Max[!is.na(plants$Foliage_Color) & !is.na(plants$pH_Min) &
       !is.na(plants$pH_Max)]     # Exclude rows with missing fcolr, phmin, or phmax values
-plants_tidy <- cbind.data.frame(phmin, phmax, Foliage_Color_)     # Combine 3 columns
+# Combine 3 columns
+plants_tidy <- cbind.data.frame(phmin, phmax, Foliage_Color_)
 str(plants_tidy)       # Display tidy plant data structure
-model <- lm(formula = phmin + phmax ~ Foliage_Color_, data = plants_tidy)     # Linear model
+# Linear model
+model <- lm(formula = phmin + phmax ~ Foliage_Color_, data = plants_tidy)
 kable(summary(model)$coef, digits = 3, format = "pandoc",
       caption = "Linear Model Coefficients for Min pH + Max pH ~ Foliage Color")
 kable(anova(model), digits = 3, format = "pandoc",
       caption = "ANOVA table for Min pH + Max pH ~ Foliage Color")
 ```
-
-&nbsp;
-
-\begin{center}
-Virginia Tech Honor Pledge: \newline
-“I have neither given nor received unauthorized assistance on this assignment.”
-\end{center}
