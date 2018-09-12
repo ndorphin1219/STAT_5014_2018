@@ -1,0 +1,104 @@
+---
+title: "Statistics 5014: Homework 1"
+author: "Stephen Park"
+date: '`r Sys.Date()`'
+output: pdf_document
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 6, fig.height = 4, fig.align = 'center')
+```
+
+# Problem 4
+
+### Part A: What I am hoping to get out of this class
+Although it will take longer than one semester to become an expert programmer in R, Python, or any desired language, I expect myself to become fundamentally prepared to readily convert any statistical calculations, data interpretations into fluent, concise code after taking the Statistical Programming Packages course this fall. I would like to challenge myself to streamline my logic and write efficient code. Becoming familiar with key functions and packages that are essential to the concurrent core Statistics courses (STAT 5034, 5044, and 5104) would be also necessary. In addition, gaining the insight to strategically approach 'dirty' data and perform effective cleanup techniques would be appreciated. Among the learning objectives of the current course, the following would be particularly desired:
+
+1. Identification and demonstration of efficient coding techniques in R
+2. Familiarization with key statistical packages and functions
+3. Demonstration of efficient data cleaning techniques with real world data
+
+### Part B: 3 types of density functions (Appendix Cassella & Berger) 
+
+* Probability density function (PDF) of a uniform distribution
+
+\begin{equation}
+  \begin{aligned}
+    f(x|a,b) =  \frac{1}{b-a}, \qquad a \le x \le b
+  \end{aligned}
+\end{equation}
+
+* PDF of a normal distribution
+
+\begin{equation}
+  \begin{aligned}
+    f(x|\mu,\sigma^2) =  \frac{1}{\sqrt{2\pi}\sigma}e^{-(x-\mu)^2/(2\sigma^2)}, \quad -\infty < x < \infty, \quad -\infty < \mu < \infty, \quad \sigma > 0
+  \end{aligned}
+\end{equation}
+
+* PDF of a $t$ distribution
+
+\begin{equation}
+    \begin{aligned}
+        f(x|\nu) =  \frac{\Gamma(\frac{\nu + 1}{2})}{\Gamma (\frac{\nu}{2})} \frac{1}{\sqrt{\nu\pi}}\frac{1}{[1+(\frac{x^2}{\nu})]^{(v+1)/2}}, \quad -\infty < x < \infty, \quad \nu = 1, 2, \dots
+\end{aligned}
+\end{equation}
+
+# Problem 5
+
+### Summary of ["Ten Simple Rules for Reproducible Computational Research" (Sandve et al., 2013)](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003285)
+
+1. Rule 1: Details of the full analysis workflow regarding the written commands, scripts or programs need to be documented in order to ensure ease in reproduction.
++ Challenge: Workflow records need to be formatted and organized in a concise and consistent manner for the user or a third party to read in the future. Failing to do so may cause additional confusion.
+
+2. Rule 2: Avoid the manual handling of data and rely on the execution of programs for data manipulation. If manual processing is inevitable, record the action taken, along with its purpose.
++ Challenge: The proper commands for effective data manipulation need to be understood well, and extra effort is required to write a efficient and functional data processing script.
+
+3. Rule 3: Archive the exact versions of external software that was used.
++ Challenge: Dated software may not be readily available in the future.
+
+4. Rule 4: Use a version control system (VCS), e.g., Subversion, Git, or Mercurial, to ensure that the exact version of custom code is used during reproduction.
++ Challenge: Diligent organization and management of the VCS is required. 
+
+5. Rule 5: Store intermediate results in standardized format.
++ Challenge: Additional storage may be required and may be burdensome when dealing with excessively large quantities of data.
+
+6. Rule 6: In order to precisely reproduce data, random seeds that were used for analyses that deal with random variables should be recorded.
++ Challenge: The precise location, and purpose of the random seeds need to be stored with the data as well, and storage may be cumbersome.
+
+7. Rule 7: Store the raw data for plots.
++ Challenge: Large quantities of data may result in storage issues.
+
+8. Rule 8: Utilize tools such as hypertext to generate a hierarchical system for the output.
++ Challenge: Additional time and labor is required for the generation, inspection, and validation of intermediate output values.
+
+9. Rule 9: Create connections with interpretations, claims and conclusions with the precise results that underly them. This can be done by including a file path to the statement, or using tools such as Sweave, GenePattern, and Galaxy Pages. 
++ Challenge: May be difficult and can slow down work progress, particulary in group environments.
+
+10. Rule 10: Input data, scripts, versions, parameters, and intermediate results should be made easily accessible to the public. 
++ Challenge: This may not be applicable when dealing with confidential or sensitive information.
+
+#Problem 6
+
+### A basic scatter plot and histogram of an internal R dataset 
+
+```{r}
+plot(CO2$conc, CO2$uptake,
+     main = "Carbon Dioxide Uptake in Grass Plants",
+     xlab = "Ambient CO2 concentration (mL/L)",
+     ylab = "CO2 uptake rate (umol/m^2 s)",
+     xlim = c(0, 1000), ylim = c(0, 50), col = "dark green", cex = 1.2)
+```
+\leavevmode
+\newline
+```{r}
+hist(CO2$uptake, breaks = 5*(1:10),
+     main = "Histogram of CO2 uptake in Grass Plants",
+     xlab = "CO2 uptake rate (umol/m^2 s)",
+     xlim = c(0, 50), ylim = c(0, 20), col = "orange")
+```
+
+\begin{center}
+Virginia Tech Honor Pledge: \newline
+“I have neither given nor received unauthorized assistance on this assignment.”
+\end{center}
