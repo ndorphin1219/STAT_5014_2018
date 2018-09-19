@@ -36,7 +36,7 @@ colnames(prob4.data) <- FirstUp(colnames(prob4.data)) # Capitalize column names
 # Convert Block variable to factor
 prob4.data$Block <- as.ordered(prob4.data$Block)
 options(knitr.kable.NA = ' ') # Don't print NA values in kable
-# Print tabel with title
+# Print table with title
 kable(summary(prob4.data), digits = 3, format = "pandoc",
       caption = "Table 1. Problem 4 summary statistics")
 ```
