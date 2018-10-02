@@ -132,8 +132,8 @@ Part a. Get and import a database of US cities and states.
 # http://www.farinspace.com/wp-content/uploads/us_cities_and_states.zip
 #download the files, looks like it is a .zip
 library(downloader)
-#download("http://www.farinspace.com/wp-content/uploads/us_cities_and_states.zip", dest = "us_cities_states.zip")
-#unzip("us_cities_states.zip", exdir="./")
+download("http://www.farinspace.com/wp-content/uploads/us_cities_and_states.zip", dest = "us_cities_states.zip")
+unzip("us_cities_states.zip", exdir="./")
 #read in data, looks like sql dump, blah
 states <- fread(input = "./us_cities_and_states/states.sql", skip = 23, sep = "'",
                 sep2 = ",", header = F, select = c(2,4))
@@ -141,19 +141,19 @@ cities <- fread(input = "./us_cities_and_states/cities.sql", sep = "'",
                 sep2 = ",", header = F, select = c(2,4))
 colnames(states) <- c("state", "abbr")
 colnames(cities) <- c("city", "abbr")
-### I suggest the cities_extended.sql may have everything you need
-### can you figure out how to limit this to the 50?
+states_50 <- states[states$abbr != "DC"] # Limit states to the 50
 ```
 
 Part b. Create a summary table of the number of cities included by state.
 
 ```{r, echo=T, eval=T, include=T}
 # Remove rows that have states not listed in the states dataset
-uscities <- subset(cities, abbr %in% states$abbr)
-uscities <- uscities[uscities$abbr != "DC"]
-table(uscities$abbr) # Summary table
+uscities <- subset(cities, abbr %in% states_50$abbr)
+table(uscities$abbr) # View summary table
 citynum <- data.frame(table(uscities$abbr))
 colnames(citynum) <- c("abbr", "num")
+states_50 <- cbind(states_50, num = citynum$num)
+
 ```
 
 Part c. Create a function that counts the number of occurrences of a letter in a string.  The input to the function should be "letter" and "state_name".  The output should be a scalar with the count for that letter.
@@ -172,7 +172,7 @@ getCount <- function(letter, state_name){
 letter_count <- data.frame(matrix(NA, nrow = 50, ncol = 26))
 
 for(i in 1:50){
-  letter_count[i,] <- sapply(letters, getCount, state_name = states$state[i])
+  letter_count[i,] <- sapply(letters, getCount, state_name = states_50$state[i])
 }
 ```
 
@@ -185,7 +185,7 @@ Quick and not so dirty map:
 ```{r eval = T, echo=T, include=T}
 #https://cran.r-project.org/web/packages/fiftystater/vignettes/fiftystater.html
 library(fiftystater)
-# data("fifty_states") # this line is optional due to lazy data loading
+data("fifty_states") # this line is optional due to lazy data loading
 crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)
 # map_id creates the aesthetic mapping to the state name column in your data
 p1 <- ggplot(crimes, aes(map_id = state)) + 
@@ -201,12 +201,11 @@ p1 <- ggplot(crimes, aes(map_id = state)) +
 p1
 
 # Map states with more than 3 of the same letter
-fifty <- states[states$abbr != "DC"]
-fifty <- cbind(fifty, citynum)
-state_3lett <- fifty[apply(letter_count, 1, max) > 3]
+states_50$state <- tolower(states_50$state)
+state_3lett <- states_50[apply(letter_count, 1, max) > 3]
 
 p2 <- ggplot(state_3lett, aes(map_id = state)) +
-  geom_map(aes(fill = state_3lett$Freq), map = fifty_states) +
+  geom_map(aes(fill = num), map = fifty_states) +
     expand_limits(x = fifty_states$long, y = fifty_states$lat) +
   coord_map() +
   scale_x_continuous(breaks = NULL) +
