@@ -1,0 +1,212 @@
+---
+title: 'Statistics 5014: Homework 6'
+header-includes: \usepackage{enumerate}
+date: "`r Sys.Date()`"
+output: html_notebook
+subtitle: Due In Class October 10, 9am
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = T, eval = T, cache = T, message = F, warning = F,
+                      fig.align = 'center', fig.width = 6, fig.height = 4)
+library(kableExtra)
+library(knitr)
+library(Rcpp)
+library(RcppArmadillo)
+library(RcppEigen)
+```
+
+## Problem 2: Sums of Squares
+
+One basic and recurring theme you will hear in statistics is "sums of squares".  Sums of squares error, regression, total, ... In this problem, we will calculate sums of squares total using:
+
+a. a for loop to iterate through all data points calculating the summed squared difference between the data points and mean of the data.
+
+```{r}
+sstime_loop <- system.time({set.seed(12345)
+  y <- seq(from = 1, to = 100, length.out = 1e8) + rnorm(1e8)
+  y_bar <- mean(y)
+  sst_loop <- 0
+  for(i in 1:length(y)){
+    sst_loop <- sst_loop + (y[i] - y_bar)^2
+  }
+})
+```
+
+b. repeat part a, but use vector operations to effect the same computation
+
+As shown in Table 1, although both methods outputted the exact same total sum of squares, using vector operations resulted in an approximate 90% reduction in processing time when compared to using a for loop.
+
+```{r ss, echo = T, eval = T, include = T}
+sstime_vect <- system.time({set.seed(12345)
+  y <- seq(from=1, to=100, length.out = 1e8) + rnorm(1e8)
+  sst_vect <- sum((y - mean(y))^2)
+})
+
+kable(as.data.frame(cbind(rbind(sstime_loop[1:3], sstime_vect[1:3]),
+                          SST = c(sst_loop, sst_vect)),
+                    row.names = c("Using a for loop",
+                                  "Using vector operations")),
+      caption = "Table 1. Process times for the calculation of sum of squares",
+      digits = 2) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed",
+                                      "responsive"), full_width = F)
+```
+  
+## Problem 3: Using the dual nature to our advantage
+
+As above, sometimes using a mixture of true matrix math plus component operations cleans up our code giving better readibility.  Suppose we wanted to form the following computation for a gradient descent:
+
+* $while(abs(\Theta_0^{i}-\Theta_0^{i-1}) \text{ AND } abs(\Theta_1^{i}-\Theta_1^{i-1}) > tolerance) \text{ \{ }$
+
+\begin{eqnarray*}
+        \Theta_0^i &=& \Theta_0^{i-1} - \alpha\frac{1}{m}\sum_{i=1}^{m} (h_0(x_i) -y_i)  \\
+        \Theta_1^i &=& \Theta_1^{i-1} - \alpha\frac{1}{m}\sum_{i=1}^{m} ((h_0(x_i) -y_i)x_i) 
+\end{eqnarray*}
+$\text{ \} }$
+
+Where $h_0(x) = \Theta_0 + \Theta_1x$.  
+
+Given __$X$__ and $\vec{h}$ below, implement the above algorithm and compare the results with lm(h~0+__$X$__). 
+
+In the following computation, a tolerance of $10^{-7}$ and a step size of $\alpha = 0.01$ was used. Estimations are shown in Table 2.
+
+```{r eval = T, echo = T, include = T}
+set.seed(1256)
+theta <- as.matrix(c(1, 2), nrow = 2)  # Define true value of thetas
+X <- cbind(1, rep(1:10, 10))           # Create matrix for explanatory variable
+h <- X %*% theta + rnorm(100, 0, 0.2)  # Create random vector for response
+
+max_iter = 10^6    # Set maximum iterations
+t_hat <- matrix(ncol = 2, nrow = max_iter)# Empty matrix for estimated thetas
+t_hat[1, ] <- c(0, 0)   # Initialize first iteration for theta_0 and theta_1
+t_hat[2, ] <- c(3, 1)   # Initialize second iteration for theta_0 and theta_1
+
+alpha <- 0.01    # Define step size
+i = 2    # Initialize counter
+tol = 10^-7     # Define tolerance
+
+while (abs(t_hat[i, 1] - t_hat[i - 1, 1]) > tol &&
+       abs(t_hat[i, 2] - t_hat[i - 1, 2]) > tol){
+  t_hat[i + 1, 1] <- t_hat[i, 1] - alpha/length(X)*sum(X %*% t_hat[i, ] - h)
+  t_hat[i + 1, 2] <- t_hat[i, 2] - alpha/length(X)*sum((X %*% t_hat[i, ] - h)*X[, 2])
+  
+  i = i + 1
+  if(i > max_iter){
+    print("Exceeded maximum iterations.")
+    break
+  }
+}
+
+t_hat <- na.omit(as.data.frame(t_hat))
+t_hat <- t_hat[nrow(t_hat), ]
+
+lin_reg <- lm(h ~ 0 + X)   # obtain estimators via simple linear regression
+
+t_table <- as.data.frame(rbind(t(theta), t_hat, lin_reg$coefficients),
+      row.names = c("True values", "Gradient descent", "Linear regression"))
+
+kable(t_table, col.names = c("theta_0", "theta_1"),
+      caption = "Table 2. Comparison of parameter estimates",
+      digits = 4, escape = F) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed",
+                                      "responsive"), full_width = F)
+```
+
+## Problem 4: Inverting matrices
+
+Ok, so John Cook makes some good points (https://www.johndcook.com/blog/2010/01/19/dont-invert-that-matrix/), but if you want to do:
+
+\begin{equation*}
+\hat\beta = (X^{T}X)^{-1}X^{T}\underline{y}
+\end{equation*}
+
+The equation can be rewritten as:
+
+\begin{equation*}
+(X^{T}X)\hat\beta = X'\underline{y}
+\end{equation*}
+
+By doing so, The matrix $(X^{T}X)$ is factored so that the equation can be solved for $\hat\beta$, which reduces the number of operations involved in multiple calculations, is more numerically accurate than actually calculating $(X^{T}X)^{-1}$, and requires less memory as well.
+
+```{r}
+X = cbind(1, rnorm(50, 5, 1))   # Random X matrix for simple linear regression
+y = rnorm(50, 50, 1)            # Random y vector
+beta_hat <- solve(t(X) %*% X, t(X) %*% y) # Factor (X^{T}X) and solve for beta_hat
+beta_hat
+```
+
+## Problem 5: Need for speed
+
+In this problem, we are looking to compute the following:
+
+\begin{equation}
+y = p + A B^{-1} (q - r)
+\end{equation}
+
+Where A, B, p, q and r are formed by:
+
+```{r data, echo=T, eval=F, include=T}
+
+set.seed(12456) 
+    
+G <- matrix(sample(c(0, 0.5, 1), size = 16000, replace = T), ncol=10)
+R <- cor(G)    # R: 10 * 10 correlation matrix of G
+C <- kronecker(R, diag(1600))    # C is a 16000 * 16000 block diagonal matrix
+id <- sample(1:16000, size = 932, replace = F)
+q <- sample(c(0, 0.5, 1), size = 15068, replace = T) # vector of length 15068
+A <- C[id, -id] # matrix of dimension 932*15068
+B <- C[-id, -id] # matrix of dimension 15068*15068
+p <- runif(932, 0, 1)
+r <- runif(15068, 0, 1)
+C <- NULL  #save some memory space
+```
+
+a. How large (bytes) are A and B?  Without any optimization tricks, how long does the it take to calculate y?
+
+```{r}
+cat("The size of A is", object.size(A), "bytes. \n")
+cat("The size of B is", object.size(B), "bytes. \n")
+
+time_orig <- system.time({
+  y <- p + A %*% solve(B) %*% (q - r)
+})/60    # Time in minutes
+
+cat("Without any optimization, it takes", time_orig[3], "minutes to calculate y.")
+```
+
+b. How would you break apart this computation, i.e., what order of operations would make sense?  Are there any mathmatical simplifications you can make?  Is there anything about the vectors or matrices we might take advantage of?
+
+The latter part of the equation, i.e., $A B^{-1} (q - r)$ is originally calculated using 2 matrix multiplication operations. We can decrease the number of operations to 1 matrix multiplication by first computing $B^{-1} (q - r)$ using the `solve` function in `R`, and then performing the matrix multiplication involving $A$.
+
+c. Use ANY means (ANY package, ANY trick, etc) necessary to compute the above, fast.  This compute will be what we will use in our fastest compute challenge next week.  Wrap your code in "system.time({})", everything you do past assignment "C <- NULL".
+
+```{r}
+time_opt1 <- system.time({
+  y <- p + A %*% solve(B, q - r)
+})/60    # Time in minutes
+
+cat("With optimization, it takes", time_opt1[3], "minutes to calculate y.")
+```
+
+Decreasing the number of matrix multiplications from 2 to 1 resulted in an approximate 30% reduction in computational time.
+
+An additional solution would be to incorporate linear algebra libraries in C++ (Bates and Eddelbuettel, 2013). The object-oriented language can be used to effectively represent matrices and vectors in order to drastically decrease computational time. In this particular case, however, there is not much improvement.
+
+```{r}
+sourceCpp("matrix.cpp")
+time_opt2 <- system.time({
+  y <- p + eigenMapMatMult(A, solve(B, q - r))
+})/60    # Time in minutes
+
+cat("With optimization and C++ implementation, it takes", time_opt2[3], "minutes to calculate y.")
+```
+
+Reference
+
+D. Bates and D. Eddelbuettel, 2013. Fast and elegant numerical linear algebra using the RccpEigen package. Journal of Statistical Software. 52(5): 1-24.
+
+
+## Optional preparation for next class:  
+
+Next week we will talk about parallel computing in R.  We will focus on MPI and parfor.

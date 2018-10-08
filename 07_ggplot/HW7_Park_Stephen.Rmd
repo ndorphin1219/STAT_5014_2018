@@ -1,0 +1,46 @@
+---
+title: "Statistics 5014: Homework 7"
+subtitle: "Due Wednesday October 10, 9am"
+date: '`r Sys.Date()`'
+output: html_document
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo = T, eval=T, cache=T, message=F, warning=F, fig.align = 'center')
+#fig.width = 6, fig.height = 4
+library(datasauRus)
+library(dplyr)
+library(gganimate)
+library(ggplot2)
+library(gridExtra)
+```
+
+## Problem 1
+
+Create a multipanel plot of the Datasaurus data set like I did in class.  Use block as the factor.
+
+```{r, fig.width = 6, fig.height = 9}
+data_names <- unique(datasaurus_dozen$dataset) # Store unique names of datasets
+multi_plot <- list()          # Initialize list to store all individual ggplots
+# Create individual scatterplots
+for (i in 1:length(data_names)){
+  multi_plot[[i]] <- ggplot(filter(datasaurus_dozen, dataset == data_names[i]),
+                            aes(x = x, y = y)) +     # Initialize ggplot object
+    geom_point() +     # Create scatterplot
+    ggtitle(data_names[i]) +     # Add title for each plot
+    theme(plot.title = element_text(size = 4))     # Modify font size of titles
+}
+# Arrange all plots in the list
+do.call("grid.arrange", c(multi_plot, ncol = floor(sqrt(length(data_names)))))
+```
+
+## Problem 2
+
+2. Do the same thing using gganimate to create a gif.
+```{r, fig.width = 2, fig.height = 2}
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +    # initialize ggplot object
+  geom_point(size = 1) +      # create scatterplot of datasaurus_dozen dataset
+  transition_states(dataset, 3, 1) + # transition between each of the datasets
+  ease_aes('cubic-in-out') # use an easing function
+```
+
