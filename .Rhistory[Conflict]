@@ -1,0 +1,512 @@
+View(states)
+states[apply(getCount, 1, max) > 3, ]
+View(states)
+states$state[apply(getCount, 1, max) > 3, ]
+View(letter_count)
+filter(max(letter_count) > 3)
+filter
+?filter
+apply(letter_count, 1, max)
+this <- apply(letter_count, 1, max) > 3
+which(apply(letter_count, 1, max) > 3)
+states
+states(apply(letter_count, 1, max) > 3)
+states[apply(letter_count, 1, max) > 3]
+states[states$state != DC]
+states[states$state != "DC"]
+fifty_states
+# Map states with more than 3 of the same letter
+fifty <- states[states$state != "DC"]
+View(fifty)
+# Map states with more than 3 of the same letter
+fifty <- states[states$abbr != "DC"]
+fifty[apply(letter_count, 1, max) > 3]
+fifty[apply(letter_count, 1, max) > 3]
+crimes
+ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = Cities), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+state_3lett <- fifty[apply(letter_count, 1, max) > 3]
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = Cities), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = cities), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+state_3lett
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = Cities), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+data("fifty_states") # this line is optional due to lazy data loading
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = Cities), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = letter_count), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+fifty_states
+View(cities)
+table(uscities$abbr)
+cities.table <- table(cities$state)
+cities.table
+table(cities$state)
+cities.table <- table(cities$abbr)
+cities.table <- table(uscities$abbr)
+cities.table
+states <- states[!(states$Code %in% c("PR", "DC")), ]
+states
+states <- states[!(states$abbr %in% c("PR", "DC")), ]
+states
+#read in data, looks like sql dump, blah
+states <- fread(input = "./us_cities_and_states/states.sql", skip = 23, sep = "'",
+sep2 = ",", header = F, select = c(2,4))
+View(states)
+colnames(states) <- c("state", "abbr")
+View(states)
+View(cities)
+num.cities <- data.frame(Cities = as.numeric(cities.table),
+Code = names(cities.table))
+View(num.cities)
+data.frame(table(uscities$abbr))
+uscitites
+uscities
+uscities <- uscities[states$abbr != "DC"]
+uscities <- uscities[uscities$abbr != "DC"]
+uscities <- uscities[uscities$abbr != "DC"]
+# Remove rows that have states not listed in the states dataset
+uscities <- subset(cities, abbr %in% states$abbr)
+uscities <- uscities[uscities$abbr != "DC"]
+table(uscities$abbr) # Summary table
+citynum
+citynum <- data.frame(uscities$abbr)
+citynum
+citynum <- data.frame(table(uscities$abbr))
+citynum
+cbind(citynum, fifty)
+fifty <- cbind(citynum, fifty)
+state_3lett <- fifty[apply(letter_count, 1, max) > 3]
+# Map states with more than 3 of the same letter
+fifty <- states[states$abbr != "DC"]
+fifty <- cbind(fifty, citynum)
+fifty
+state_3lett <- fifty[apply(letter_count, 1, max) > 3]
+state_3lett
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = Freq), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+state_3lett
+fifty_states
+# data("fifty_states") # this line is optional due to lazy data loading
+crimes <- data.frame(state = tolower(rownames(USArrests)), USArrests)
+# map_id creates the aesthetic mapping to the state name column in your data
+p1 <- ggplot(crimes, aes(map_id = state)) +
+# map points to the fifty_states shape data
+geom_map(aes(fill = Assault), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom",
+panel.background = element_blank())
+p1
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = Freq), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+state_3lett
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = state_3lett$Freq), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+state_3lett <- fifty[apply(letter_count, 1, max) > 3]
+View(state_3lett)
+apply(letter_count, 1, max)
+# Map states with more than 3 of the same letter
+fifty <- states[states$abbr != "DC"]
+fifty
+apply(letter_count, 1, max)
+View(letter_count)
+states$state
+crimes
+fifty
+# Map states with more than 3 of the same letter
+fifty <- states[states$abbr != "DC"]
+fifty <- cbind(fifty, citynum)
+fifty
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = fifty$Freq), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = Freq), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+state_3lett
+p2 <- ggplot(state_3lett, aes(map_id = state))
+p2
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = Freq), map = fifty_states)
+p2
+p2 <- ggplot(state_3lett, aes(map_id = state)) +
+geom_map(aes(fill = state_3lett$Freq), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+tflc <- letter_count >= 3
+tflc
+Three.Or.More <- apply(tflc, 1, sum)
+Three.Or.More
+tflc <- letter_count > 3
+Three.Or.More <- apply(tflc, 1, sum)
+Three.Or.More
+p2 <- ggplot(crimes, aes(map_id = state)) +
+geom_map(aes(fill = state_3lett$Freq), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+p2 <- ggplot(fifty, aes(map_id = state)) +
+geom_map(aes(fill = state_3lett$Freq), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+p2 <- ggplot(fifty, aes(map_id = state)) +
+geom_map(aes(fill = fifty), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2 <- ggplot(fifty, aes(map_id = state)) +
+geom_map(aes(fill = fifty), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+fifty
+p2 <- ggplot(fifty, aes(map_id = state)) +
+geom_map(aes(fill = fifty$Freq), map = fifty_states) +
+expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+coord_map() +
+scale_x_continuous(breaks = NULL) +
+scale_y_continuous(breaks = NULL) +
+labs(x = "", y = "") +
+theme(legend.position = "bottom", panel.background = element_blank())
+p2
+datasauRus
+library(datasauRus)
+datasaurus_dozen
+install.packages("gganimate")
+version
+version
+version
+install.packages("gganimate")
+library(devtools)
+install.packages("devtools")
+yes
+library(devtools)
+library(RCurl)
+install.pack
+install.packages("RCurl")
+install.packages("httr")
+library(RCurl)
+library(httr)
+set_config( config( ssl_verifypeer = 0L ) )
+devtools::install_github("dgrtwo/gganimate")
+datasaurus_dozen
+library(datasauRus)
+library(datasauRus)
+install.packages("datasauRus")
+library(datasauRus)
+ggplot(datasaurus_dozen)
+library(gganimate)
+library(gganimate)
+library(ggplot2)
+datasaurus_dozen
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +
+geom_point()
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +
+geom_point() +
+theme_minimal()
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +
+geom_point() +
+theme_minimal() +
+transition_states(dataset, 3, 1)
+knitr::opts_chunk$set(echo = T, eval=T, cache=T, message=F, warning=F, fig.align = 'center', fig.width = 6, fig.height = 4)
+library(datasauRus)
+library(gganimate)
+library(ggplot2)
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +
+geom_point() +
+theme_minimal() +
+transition_states(dataset, 3, 1)
+knitr::opts_chunk$set(echo = T, eval=T, cache=T, message=F, warning=F, fig.align = 'center', fig.width = 6, fig.height = 4)
+library(datasauRus)
+library(gganimate)
+library(ggplot2)
+plot(cars)
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +
+geom_point() +
+theme_minimal() +
+transition_states(dataset, 3, 1)
+knitr::opts_chunk$set(echo = T, eval=T, cache=T, message=F, warning=F, fig.align = 'center', fig.width = 6, fig.height = 4)
+library(datasauRus)
+library(gganimate)
+library(ggplot2)
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +
+geom_point() +
+theme_minimal() +
+transition_states(dataset, 3, 1)
+?ggplot
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +    # initialize ggplot object
+geom_point() +
+theme_minimal() +
+transition_states(dataset, 3, 1) +
+ease_aes('cubic-in-out')
+?geom_point
+?theme_minimal
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +    # initialize ggplot object
+geom_point() +           # create scatterplot of datasaurus_dozen dataset
+theme_light() +
+transition_states(dataset, 3, 1) +
+ease_aes('cubic-in-out')
+?transition_states
+test <- datasaurus_dozen
+View(test)
+?ease_ases
+?ease_aes
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +    # initialize ggplot object
+geom_point() +           # create scatterplot of datasaurus_dozen dataset
+transition_states(dataset, 3, 1) + # transition between each of the datasets
+eaase_aes('linear')
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +    # initialize ggplot object
+geom_point() +           # create scatterplot of datasaurus_dozen dataset
+transition_states(dataset, 3, 1) + # transition between each of the datasets
+ease_aes('elastic')
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +    # initialize ggplot object
+geom_point() +           # create scatterplot of datasaurus_dozen dataset
+transition_states(dataset, 3, 1) + # transition between each of the datasets
+ease_aes('circular')
+ggplot(datasaurus_dozen, aes(x = x, y = y)) +    # initialize ggplot object
+geom_point() +           # create scatterplot of datasaurus_dozen dataset
+transition_states(dataset, 3, 1) + # transition between each of the datasets
+ease_aes('cubic-in-out')
+View(test)
+library(dplyr)
+install.packages("dplyr")
+install.packages(c("fansi", "foreign", "survival"))
+knitr::opts_chunk$set(echo = T, eval=T, cache=T, message=F, warning=F, fig.align = 'center', fig.width = 6, fig.height = 4)
+library(datasauRus)
+library(dplyr)
+library(gganimate)
+library(ggplot2)
+by_dataset <- datasaurus_dozen %>% group_by(dataset)
+View(by_dataset)
+by_dataset
+summary(by_dataset)
+str(by_dataset)
+mean(by_dataset)
+View(by_dataset)
+plot(by_dataset)
+unique(datasaurus_dozen$dataset)
+install.packages("gridExtra")
+library(gridExtra)
+p <- ggplot(cars)
+q <- ggplot(iris)
+class(c(p, q))
+multi_plot <- list()
+rm(list - ls())
+data_names <- unique(datasaurus_dozen$dataset)
+multi_plot <- list()
+data_names[1]
+?ggplot
+filter(datasaurus_dozen, dataset == data_names[1])
+filter(datasaurus_dozen, dataset == data_names[1]) <- dinoset
+filter(datasaurus_dozen, dataset == data_names[1]) -> dinoset
+View(dinoset)
+knitr::opts_chunk$set(echo = T, eval=T, cache=T, message=F, warning=F, fig.align = 'center', fig.width = 6, fig.height = 4)
+library(datasauRus)
+library(dplyr)
+library(gganimate)
+library(ggplot2)
+library(gridExtra)
+data_names <- unique(datasaurus_dozen$dataset)
+multi_plot <- list()
+for (i in length(data_names)){
+multiplot[[i]] <- ggplot(filter(datasaurus_dozen, dataset == data_names[i]), aes(x = x, y = y)) + geom_point()
+}
+for (i in length(data_names)){
+multiplot[[i]] <- ggplot(filter(datasaurus_dozen, dataset == data_names[i]), aes(x = x, y = y)) + geom_point()
+}
+for (i in length(data_names)){
+multi_plot[[i]] <- ggplot(filter(datasaurus_dozen, dataset == data_names[i]), aes(x = x, y = y)) + geom_point()
+}
+View(multi_plot)
+multi_plot[[1]]
+multi_plot[[13]]
+data_names
+multi_plot[[1]] <- ggplot(filter(datasaurus_dozen, dataset == data_names[1]), aes(x = x, y = y)) + geom_point()
+multi_plot[[1]]
+length(data_names)
+multi_plot[[2]] <- ggplot(filter(datasaurus_dozen, dataset == data_names[2]), aes(x = x, y = y)) + geom_point()
+View(multi_plot)
+multi_plot[[1]]
+multi_plot[[2]]
+multi_plot[[3]]
+View(multi_plot)
+multi_plot[[3]]
+multi_plot[[2]]
+for (i in length(data_names)){
+multi_plot[[i]] <- ggplot(filter(datasaurus_dozen, dataset == data_names[i]), aes(x = x, y = y)) + geom_point() + ggtitle(data_names[i])
+}
+multi_plot[1]
+multi_plot[2]
+multi_plot[3]
+multi_plot <- list()
+for (i in length(data_names)){
+multi_plot[i] <- ggplot(filter(datasaurus_dozen, dataset == data_names[i]), aes(x = x, y = y)) + geom_point() + ggtitle(data_names[i])
+}
+multi_plot[1]
+multi_plot[[1]]
+View(multi_plot)
+multi_plot[[13]]
+filter(datasaurus_dozen, dataset == data_names[i])
+filter(datasaurus_dozen, dataset == data_names[1])
+data_list[[i]] <- filter(datasaurus_dozen, dataset == data_names[i])
+data_list <- list()
+multi_plot <- list()
+for (i in length(data_names)){
+data_list[[i]] <- filter(datasaurus_dozen, dataset == data_names[i])
+multi_plot[[i]] <- ggplot(data_list[[i]], aes(x = x, y = y)) + geom_point() + ggtitle(data_names[i])
+}
+View(data_list)
+data_list[[1]]
+filter(datasaurus_dozen, dataset == data_names[1])
+filter(datasaurus_dozen, dataset == data_names[2])
+filter(datasaurus_dozen, dataset == data_names[3])
+for (i in length(data_names)){
+data_list[i] <- filter(datasaurus_dozen, dataset == data_names[i])
+multi_plot[i] <- ggplot(data_list[[i]], aes(x = x, y = y)) + geom_point() + ggtitle(data_names[i])
+}
+for (i in length(data_names)){
+data_list[i] <- filter(datasaurus_dozen, dataset == data_names[i])
+multi_plot[i] <- ggplot(data_list[i], aes(x = x, y = y)) + geom_point() + ggtitle(data_names[i])
+}
+View(data_list)
+data_list[[1]]
+data_list
+data_list[1] <- filter(datasaurus_dozen, dataset == data_names[1])
+class(data_names)
+data_list[[1]] <- filter(datasaurus_dozen, dataset == data_names[i])
+data_list[[1]]
+View(data_list)
+data_list[[1]]
+data_list[[1]]
+data_list[[1]] <- filter(datasaurus_dozen, dataset == data_names[1])
+data_list[[1]]
+for (i in length(data_names)){
+data_list[[i]] <- filter(datasaurus_dozen, dataset == data_names[i])
+#multi_plot[i] <- ggplot(data_list[i], aes(x = x, y = y)) + geom_point() + ggtitle(data_names[i])
+}
+View(data_list)
+data_list[[1]]
+data_list[[2]]
+data_list[[13]]
+data_list[[12]]
+?apply
+?lapply
+data_names <- unique(datasaurus_dozen$dataset)
+data_names
+data_names[1]
+data_names[2]
+data_names[3]
+filter(datasaurus_dozen, dataset == data_names[i])
+for (i in 1:length(data_names)){
+data_list[[i]] <- filter(datasaurus_dozen, dataset == data_names[i])
+#multi_plot[i] <- ggplot(data_list[i], aes(x = x, y = y)) + geom_point() + ggtitle(data_names[i])
+}
+View(data_list)
+data_list[[1]]
+data_list[[2]]
+for (i in 1:length(data_names)){
+multi_plot[[i]] <- ggplot(filter(datasaurus_dozen, dataset == data_names[i]), aes(x = x, y = y)) + geom_point() + ggtitle(data_names[i])
+}
+multi_plot[[1]]
+multi_plot[[2]]
